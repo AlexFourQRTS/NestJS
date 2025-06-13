@@ -1,0 +1,64 @@
+//schema.prisma
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model File {
+  id         Int      @id @default(autoincrement())
+  filename   String
+  originalName String
+  mimeType   String
+  path       String   @unique
+  size       Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Blog {
+  id          Int       @id @default(autoincrement())
+  title       String
+  content     String    @db.Text
+  excerpt     String    @db.Text
+  category    String
+  tags        String[]
+  imageUrl    String?
+  authorId    Int
+  likes       Int[]     @default([])
+  dislikes    Int[]     @default([])
+  comments    Comment[]
+  views       Int       @default(0)
+  isPublished Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([category])
+  @@index([tags])
+  @@index([authorId])
+  @@index([createdAt])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.Text
+  userId    Int
+  blogId    Int
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([blogId])
+  @@index([userId])
+}
