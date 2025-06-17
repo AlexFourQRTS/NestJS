@@ -5,66 +5,7 @@ export declare class FilesController {
     private readonly filesService;
     constructor(filesService: FilesService);
     getAllFiles(): Promise<{
-        images: {
-            url: string;
-            downloadUrl: string;
-            id: string;
-            filename: string;
-            original_name: string;
-            file_type: string;
-            path: string;
-            size: number;
-            mime_type: string;
-            uploaded_at: Date;
-        }[];
-        videos: {
-            url: string;
-            downloadUrl: string;
-            id: string;
-            filename: string;
-            original_name: string;
-            file_type: string;
-            path: string;
-            size: number;
-            mime_type: string;
-            uploaded_at: Date;
-        }[];
-        audio: {
-            url: string;
-            downloadUrl: string;
-            id: string;
-            filename: string;
-            original_name: string;
-            file_type: string;
-            path: string;
-            size: number;
-            mime_type: string;
-            uploaded_at: Date;
-        }[];
-        documents: {
-            url: string;
-            downloadUrl: string;
-            id: string;
-            filename: string;
-            original_name: string;
-            file_type: string;
-            path: string;
-            size: number;
-            mime_type: string;
-            uploaded_at: Date;
-        }[];
-        other: {
-            url: string;
-            downloadUrl: string;
-            id: string;
-            filename: string;
-            original_name: string;
-            file_type: string;
-            path: string;
-            size: number;
-            mime_type: string;
-            uploaded_at: Date;
-        }[];
+        [key: string]: import("./entities/file.entity").File[];
     }>;
     getFileById(id: string): Promise<{
         url: string;

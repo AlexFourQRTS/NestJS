@@ -17,7 +17,7 @@ export class FilesService implements OnModuleDestroy {
   private readonly videoExtensions = /\.(mp4|webm|mov|avi|mkv)$/i;
   private readonly audioExtensions = /\.(mp3|wav|ogg|flac|m4a)$/i;
   private readonly documentExtensions = /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|rtf)$/i;
-  
+
   private readonly baseUploadDir = join(process.cwd(), 'CloudFile');
   private readonly typeDirs = {
     images: join(this.baseUploadDir, 'Images'),
@@ -84,7 +84,7 @@ export class FilesService implements OnModuleDestroy {
     try {
       // Создаем основную директорию
       await ensureDir(this.baseUploadDir);
-      
+
       // Создаем поддиректории для каждого типа файлов
       for (const dir of Object.values(this.typeDirs)) {
         await ensureDir(dir);
@@ -110,18 +110,53 @@ export class FilesService implements OnModuleDestroy {
   }
 
   async getAllFiles(): Promise<{ [key: string]: File[] }> {
-    const files = await this.filesRepository.find();
-    
-    // Группируем файлы по типам
-    const groupedFiles = {
-      images: files.filter(file => file.file_type === 'images'),
-      videos: files.filter(file => file.file_type === 'videos'),
-      audio: files.filter(file => file.file_type === 'audio'),
-      documents: files.filter(file => file.file_type === 'documents'),
-      other: files.filter(file => file.file_type === 'other')
-    };
+    try {
+      const files = await this.filesRepository.find();
+      const groupedFiles = {
+        images: files.filter(file => file.file_type === 'images'),
+        videos: files.filter(file => file.file_type === 'videos'),
+        audio: files.filter(file => file.file_type === 'audio'),
+        documents: files.filter(file => file.file_type === 'documents'),
+        other: files.filter(file => file.file_type === 'other')
+      };
 
-    return groupedFiles;
+      const result = {
+
+        images: groupedFiles.images.map(file => ({
+          ...file,
+          url: `/api/files/${file.file_type}/${file.filename}`,
+          downloadUrl: `/api/files/number${file.id}/download`
+        })),
+
+        videos: groupedFiles.videos.map(file => ({
+          ...file,
+          url: `/api/files/${file.file_type}/${file.filename}`,
+          downloadUrl: `/api/files/number${file.id}/download`
+        })),
+
+        audio: groupedFiles.audio.map(file => ({
+          ...file,
+          url: `/api/files/${file.file_type}/${file.filename}`,
+          downloadUrl: `/api/files/number${file.id}/download`
+        })),
+
+        documents: groupedFiles.documents.map(file => ({
+          ...file,
+          url: `/api/files/${file.file_type}/${file.filename}`,
+          downloadUrl: `/api/files/number${file.id}/download`
+        })),
+
+        other: groupedFiles.other.map(file => ({
+          ...file,
+          url: `/api/files/${file.file_type}/${file.filename}`,
+          downloadUrl: `/api/files/number${file.id}/download`
+        }))
+      };
+      return result;
+    } catch (error) {
+      console.error('Ошибка при получении списка файлов:', error);
+      throw new HttpException('Ошибка при получении списка файлов', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async getFileById(id: string): Promise<File> {
@@ -139,13 +174,13 @@ export class FilesService implements OnModuleDestroy {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
         const ext = extname(file.originalname);
         const filename = `${file.originalname.replace(ext, '')}-${uniqueSuffix}${ext}`;
-        
+
         // Определяем путь для сохранения файла
         const uploadPath = this.getUploadPath(fileType, filename);
-        
+
         // Перемещаем файл в соответствующую директорию
         await writeFile(uploadPath, file.buffer);
-        
+
         const fileEntity = new File();
         fileEntity.filename = filename;
         fileEntity.original_name = file.originalname;

@@ -60,48 +60,11 @@ let FilesController = class FilesController {
         this.filesService = filesService;
     }
     async getAllFiles() {
-        try {
-            const groupedFiles = await this.filesService.getAllFiles();
-            const result = {
-                images: groupedFiles.images.map(file => ({
-                    ...file,
-                    url: `/api/files/${file.file_type}/${file.filename}`,
-                    downloadUrl: `/api/files/number${file.id}/download`
-                })),
-                videos: groupedFiles.videos.map(file => ({
-                    ...file,
-                    url: `/api/files/${file.file_type}/${file.filename}`,
-                    downloadUrl: `/api/files/number${file.id}/download`
-                })),
-                audio: groupedFiles.audio.map(file => ({
-                    ...file,
-                    url: `/api/files/${file.file_type}/${file.filename}`,
-                    downloadUrl: `/api/files/number${file.id}/download`
-                })),
-                documents: groupedFiles.documents.map(file => ({
-                    ...file,
-                    url: `/api/files/${file.file_type}/${file.filename}`,
-                    downloadUrl: `/api/files/number${file.id}/download`
-                })),
-                other: groupedFiles.other.map(file => ({
-                    ...file,
-                    url: `/api/files/${file.file_type}/${file.filename}`,
-                    downloadUrl: `/api/files/number${file.id}/download`
-                }))
-            };
-            return result;
-        }
-        catch (error) {
-            console.error('Ошибка при получении списка файлов:', error);
-            throw new common_1.HttpException('Ошибка при получении списка файлов', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return (await this.filesService.getAllFiles());
     }
     async getFileById(id) {
         try {
             const file = await this.filesService.getFileById(id);
-            if (!file) {
-                throw new common_1.HttpException('Файл не найден', common_1.HttpStatus.NOT_FOUND);
-            }
             return {
                 ...file,
                 url: `/api/files/${file.file_type}/${file.filename}`,
@@ -119,9 +82,6 @@ let FilesController = class FilesController {
     async downloadFile(id, res) {
         try {
             const file = await this.filesService.getFileById(id);
-            if (!file) {
-                throw new common_1.HttpException('Файл не найден', common_1.HttpStatus.NOT_FOUND);
-            }
             const filePath = file.path;
             res.download(filePath, file.original_name);
         }

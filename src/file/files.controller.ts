@@ -1,7 +1,7 @@
 import { Controller, Post, Get, Param, UseInterceptors, UploadedFiles, BadRequestException, HttpStatus, HttpException, Res, Req, Delete } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { diskStorage, memoryStorage } from 'multer';
-import { extname, join } from 'path'; 
+import { extname, join } from 'path';
 
 import { Response, Request } from 'express'; // Добавьте Request
 
@@ -19,48 +19,7 @@ export class FilesController {
 
   @Get()
   async getAllFiles() {
-    try {
-      const groupedFiles = await this.filesService.getAllFiles();
-
-      // Преобразуем каждую группу файлов, добавляя URL
-      const result = {
-
-        images: groupedFiles.images.map(file => ({
-          ...file,
-          url: `/api/files/${file.file_type}/${file.filename}`,
-          downloadUrl: `/api/files/number${file.id}/download`
-        })),
-
-        videos: groupedFiles.videos.map(file => ({
-          ...file,
-          url: `/api/files/${file.file_type}/${file.filename}`,
-          downloadUrl: `/api/files/number${file.id}/download`
-        })),
-
-        audio: groupedFiles.audio.map(file => ({
-          ...file,
-          url: `/api/files/${file.file_type}/${file.filename}`,
-          downloadUrl: `/api/files/number${file.id}/download`
-        })),
-
-        documents: groupedFiles.documents.map(file => ({
-          ...file,
-          url: `/api/files/${file.file_type}/${file.filename}`,
-          downloadUrl: `/api/files/number${file.id}/download`
-        })),
-
-        other: groupedFiles.other.map(file => ({
-          ...file,
-          url: `/api/files/${file.file_type}/${file.filename}`,
-          downloadUrl: `/api/files/number${file.id}/download`
-        }))
-      };
-
-      return result;
-    } catch (error) {
-      console.error('Ошибка при получении списка файлов:', error);
-      throw new HttpException('Ошибка при получении списка файлов', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return (await this.filesService.getAllFiles())
   }
 
   @Get('number:id')
@@ -68,9 +27,6 @@ export class FilesController {
 
     try {
       const file = await this.filesService.getFileById(id);
-      if (!file) {
-        throw new HttpException('Файл не найден', HttpStatus.NOT_FOUND);
-      }
       return {
         ...file,
         url: `/api/files/${file.file_type}/${file.filename}`,
@@ -90,10 +46,6 @@ export class FilesController {
   async downloadFile(@Param('id') id: string, @Res() res: Response) {
     try {
       const file = await this.filesService.getFileById(id);
-      if (!file) {
-        throw new HttpException('Файл не найден', HttpStatus.NOT_FOUND);
-      }
-
       const filePath = file.path;
       res.download(filePath, file.original_name);
     } catch (error) {
@@ -166,16 +118,16 @@ export class FilesController {
     try {
       const file = await this.filesService.getFileById(id);
 
-       if (!file) {
-      throw new HttpException('Файл не найден', HttpStatus.NOT_FOUND);
-    }
+      if (!file) {
+        throw new HttpException('Файл не найден', HttpStatus.NOT_FOUND);
+      }
 
-    if (file.file_type !== 'videos' && !file.mime_type.startsWith('video/')) {
-       console.log('Debug: File failed video type check.');
-       throw new HttpException('Запрашиваемый файл не является видео', HttpStatus.BAD_REQUEST);
-    }
+      if (file.file_type !== 'videos' && !file.mime_type.startsWith('video/')) {
+        console.log('Debug: File failed video type check.');
+        throw new HttpException('Запрашиваемый файл не является видео', HttpStatus.BAD_REQUEST);
+      }
 
-  console.log("Статистика по видео : ", file.original_name )
+      console.log("Статистика по видео : ", file.original_name)
 
       const videoPath = file.path;
       const videoStat = await stat(videoPath);
@@ -223,6 +175,7 @@ export class FilesController {
       const filePath = join(process.cwd(), '/Hyss-Setup-0.1.0.exe');
       const fileName = 'Hyss-Setup-0.1.0.exe';
       res.download(filePath, fileName, (err: NodeJS.ErrnoException | null) => {
+        
         if (err) {
           if (err.code === 'ENOENT') {
             console.warn(`Файл не найден для скачивания: ${filePath}`);

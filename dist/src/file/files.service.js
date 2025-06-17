@@ -115,15 +115,48 @@ let FilesService = class FilesService {
         return (0, path_1.join)(typeDir, filename);
     }
     async getAllFiles() {
-        const files = await this.filesRepository.find();
-        const groupedFiles = {
-            images: files.filter(file => file.file_type === 'images'),
-            videos: files.filter(file => file.file_type === 'videos'),
-            audio: files.filter(file => file.file_type === 'audio'),
-            documents: files.filter(file => file.file_type === 'documents'),
-            other: files.filter(file => file.file_type === 'other')
-        };
-        return groupedFiles;
+        try {
+            const files = await this.filesRepository.find();
+            const groupedFiles = {
+                images: files.filter(file => file.file_type === 'images'),
+                videos: files.filter(file => file.file_type === 'videos'),
+                audio: files.filter(file => file.file_type === 'audio'),
+                documents: files.filter(file => file.file_type === 'documents'),
+                other: files.filter(file => file.file_type === 'other')
+            };
+            const result = {
+                images: groupedFiles.images.map(file => ({
+                    ...file,
+                    url: `/api/files/${file.file_type}/${file.filename}`,
+                    downloadUrl: `/api/files/number${file.id}/download`
+                })),
+                videos: groupedFiles.videos.map(file => ({
+                    ...file,
+                    url: `/api/files/${file.file_type}/${file.filename}`,
+                    downloadUrl: `/api/files/number${file.id}/download`
+                })),
+                audio: groupedFiles.audio.map(file => ({
+                    ...file,
+                    url: `/api/files/${file.file_type}/${file.filename}`,
+                    downloadUrl: `/api/files/number${file.id}/download`
+                })),
+                documents: groupedFiles.documents.map(file => ({
+                    ...file,
+                    url: `/api/files/${file.file_type}/${file.filename}`,
+                    downloadUrl: `/api/files/number${file.id}/download`
+                })),
+                other: groupedFiles.other.map(file => ({
+                    ...file,
+                    url: `/api/files/${file.file_type}/${file.filename}`,
+                    downloadUrl: `/api/files/number${file.id}/download`
+                }))
+            };
+            return result;
+        }
+        catch (error) {
+            console.error('Ошибка при получении списка файлов:', error);
+            throw new common_1.HttpException('Ошибка при получении списка файлов', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     async getFileById(id) {
         const file = await this.filesRepository.findOne({ where: { id } });
