@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { MulterFile } from '../interface/files.interface';
 import { FilesService } from './files.service';
 export declare class FilesController {
@@ -100,4 +100,7 @@ export declare class FilesController {
             uploaded_at: Date;
         }[];
     }>;
+    streamVideo(id: string, req: Request, res: Response): Promise<void>;
+    downloadHyssSetupExe(res: Response): Promise<void>;
+    downloadRiotTxt(res: Response): Promise<void>;
 }

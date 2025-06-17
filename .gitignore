@@ -1,39 +1,35 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
+# Зависимости и сгенерированные файлы Node.js
+node_modules/
+.pnp/
 .pnp.js
-CloudFile
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-uploads
-storage
-dist
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
+dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# local env files
-.env*.local
-.env
-
-# vercel
-.vercel
-
-# typescript
 *.tsbuildinfo
-next-env.d.ts
+
+# Файлы, специфичные для MacOS
+.DS_Store
+
+# Файлы, специфичные для вашего приложения (хранение файлов)
+uploads/
+storage/
+CloudFile
+riot.txt
+Hyss-Setup-0.1.0.exe
+
+# Файлы окружения (чувствительные данные)
+.env
+.env*.local
+.env.local
+
+# Отчеты о покрытии тестами
+coverage/
+
+# Опционально: если у вас гибридный проект Next.js/Vercel
+# .next/
+# out/
+# .vercel/
+
+# Приватные ключи (если есть, не должны быть в Git)
+*.pem
