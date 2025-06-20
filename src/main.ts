@@ -3,9 +3,15 @@ import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { NotFoundFilter } from './filters/not-found.filter';
+import { GlobalMiddleware } from './middleware/globalMiddleware';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  
+  // Регистрация глобального middleware для защиты от DDoS - ПЕРВЫМ!
+  const globalMiddleware = app.get(GlobalMiddleware);
+  app.use(globalMiddleware.use.bind(globalMiddleware));
   
   // Настройка CORS
   app.enableCors({
@@ -31,6 +37,29 @@ async function bootstrap() {
   app.setGlobalPrefix('api', {
     exclude: ['/'],
   });
+
+  // Настройка Swagger документации
+  const config = new DocumentBuilder()
+    .setTitle('NestJS API')
+    .setDescription('API документация для NestJS приложения')
+    .setVersion('1.0')
+    .addTag('auth', 'Авторизация и регистрация')
+    .addTag('ddos-monitor', 'Мониторинг DDoS защиты')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Введите JWT токен',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .build();
+  
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
 
   // Регистрация глобального фильтра для 404 ошибок
   app.useGlobalFilters(new NotFoundFilter());

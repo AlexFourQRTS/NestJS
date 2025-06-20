@@ -5,9 +5,8 @@ import { join, extname } from 'path';
 import { MulterFile } from '../interface/files.interface';
 import { Client } from 'pg';
 import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { File } from './entities/file.entity';
+import { InjectModel } from '@nestjs/sequelize';
+import { File } from './entities/file.model';
 
 @Injectable()
 export class FilesService implements OnModuleDestroy {
@@ -29,8 +28,8 @@ export class FilesService implements OnModuleDestroy {
 
   constructor(
     private readonly configService: ConfigService,
-    @InjectRepository(File)
-    private filesRepository: Repository<File>,
+    @InjectModel(File)
+    private fileModel: typeof File,
   ) {
     this.client = new Client({
       host: this.configService.get<string>('DB_HOST'),
@@ -109,9 +108,9 @@ export class FilesService implements OnModuleDestroy {
     return join(typeDir, filename);
   }
 
-  async getAllFiles(): Promise<{ [key: string]: File[] }> {
+  async getAllFiles(): Promise<{ [key: string]: any[] }> {
     try {
-      const files = await this.filesRepository.find();
+      const files = await this.fileModel.findAll();
       const groupedFiles = {
         images: files.filter(file => file.file_type === 'images'),
         videos: files.filter(file => file.file_type === 'videos'),
@@ -123,31 +122,31 @@ export class FilesService implements OnModuleDestroy {
       const result = {
 
         images: groupedFiles.images.map(file => ({
-          ...file,
+          ...file.toJSON(),
           url: `/api/files/${file.file_type}/${file.filename}`,
           downloadUrl: `/api/files/number${file.id}/download`
         })),
 
         videos: groupedFiles.videos.map(file => ({
-          ...file,
+          ...file.toJSON(),
           url: `/api/files/${file.file_type}/${file.filename}`,
           downloadUrl: `/api/files/number${file.id}/download`
         })),
 
         audio: groupedFiles.audio.map(file => ({
-          ...file,
+          ...file.toJSON(),
           url: `/api/files/${file.file_type}/${file.filename}`,
           downloadUrl: `/api/files/number${file.id}/download`
         })),
 
         documents: groupedFiles.documents.map(file => ({
-          ...file,
+          ...file.toJSON(),
           url: `/api/files/${file.file_type}/${file.filename}`,
           downloadUrl: `/api/files/number${file.id}/download`
         })),
 
         other: groupedFiles.other.map(file => ({
-          ...file,
+          ...file.toJSON(),
           url: `/api/files/${file.file_type}/${file.filename}`,
           downloadUrl: `/api/files/number${file.id}/download`
         }))
@@ -160,7 +159,7 @@ export class FilesService implements OnModuleDestroy {
   }
 
   async getFileById(id: string): Promise<File> {
-    const file = await this.filesRepository.findOne({ where: { id } });
+    const file = await this.fileModel.findByPk(id);
     if (!file) {
       throw new HttpException('File not found', HttpStatus.NOT_FOUND);
     }
@@ -169,7 +168,9 @@ export class FilesService implements OnModuleDestroy {
 
   async saveFiles(files: MulterFile[]): Promise<File[]> {
     try {
-      const fileEntities = await Promise.all(files.map(async file => {
+      const savedFiles: File[] = [];
+      
+      for (const file of files) {
         const fileType = this.determineFileType(file.originalname);
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
         const ext = extname(file.originalname);
@@ -181,17 +182,22 @@ export class FilesService implements OnModuleDestroy {
         // Перемещаем файл в соответствующую директорию
         await writeFile(uploadPath, file.buffer);
 
-        const fileEntity = new File();
-        fileEntity.filename = filename;
-        fileEntity.original_name = file.originalname;
-        fileEntity.mime_type = file.mimetype;
-        fileEntity.size = file.size;
-        fileEntity.path = uploadPath;
-        fileEntity.file_type = fileType;
-        return fileEntity;
-      }));
+        const fileData = {
+          filename: filename,
+          original_name: file.originalname,
+          mime_type: file.mimetype,
+          size: file.size,
+          path: uploadPath,
+          file_type: fileType,
+        };
 
-      return await this.filesRepository.save(fileEntities);
+        console.log('File data to save:', fileData);
+        
+        const savedFile = await this.fileModel.create(fileData);
+        savedFiles.push(savedFile);
+      }
+
+      return savedFiles;
     } catch (error) {
       console.error('Error saving files:', error);
       throw new HttpException('Error saving files', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -214,7 +220,7 @@ export class FilesService implements OnModuleDestroy {
       }
 
       // Удаляем запись из базы данных
-      await this.filesRepository.remove(file);
+      await file.destroy();
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;

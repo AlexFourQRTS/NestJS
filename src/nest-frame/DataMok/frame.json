@@ -1,0 +1,311 @@
+{
+  "nestjs_modules": {
+    "title": "NestJS Модули и Компоненты",
+    "description": "Полный справочник по модулям, компонентам и паттернам NestJS",
+    "version": "1.0.0",
+    "last_updated": "2024-12-19",
+    
+    "cli_commands": {
+      "title": "CLI Команды NestJS",
+      "description": "Команды для генерации компонентов",
+      "commands": {
+        "generate_resource": {
+          "command": "nest g resource [name]",
+          "short": "nest g res [name]",
+          "description": "Создает полный модуль с контроллером, сервисом, DTO, сущностью и тестами",
+          "options": {
+            "--flat": "Создать файлы без папки",
+            "--no-spec": "Без тестов",
+            "--dry-run": "Показать что будет создано"
+          }
+        },
+        "generate_controller": {
+          "command": "nest g controller [name]",
+          "short": "nest g co [name]",
+          "description": "Создает контроллер"
+        },
+        "generate_service": {
+          "command": "nest g service [name]",
+          "short": "nest g s [name]",
+          "description": "Создает сервис"
+        },
+        "generate_module": {
+          "command": "nest g module [name]",
+          "short": "nest g mo [name]",
+          "description": "Создает модуль"
+        },
+        "generate_guard": {
+          "command": "nest g guard [name]",
+          "short": "nest g gu [name]",
+          "description": "Создает охранник"
+        },
+        "generate_interceptor": {
+          "command": "nest g interceptor [name]",
+          "short": "nest g itc [name]",
+          "description": "Создает интерсептор"
+        },
+        "generate_pipe": {
+          "command": "nest g pipe [name]",
+          "short": "nest g pi [name]",
+          "description": "Создает трубопровод"
+        },
+        "generate_filter": {
+          "command": "nest g filter [name]",
+          "short": "nest g fi [name]",
+          "description": "Создает фильтр исключений"
+        },
+        "generate_decorator": {
+          "command": "nest g decorator [name]",
+          "short": "nest g d [name]",
+          "description": "Создает декоратор"
+        },
+        "generate_gateway": {
+          "command": "nest g gateway [name]",
+          "short": "nest g ga [name]",
+          "description": "Создает WebSocket gateway"
+        },
+        "generate_resolver": {
+          "command": "nest g resolver [name]",
+          "short": "nest g r [name]",
+          "description": "Создает GraphQL resolver"
+        }
+      }
+    },
+
+    "core_components": {
+      "title": "Основные компоненты NestJS",
+      "components": {
+        "middleware": {
+          "description": "Промежуточное ПО для обработки запросов",
+          "usage": "Глобальные обработчики запросов",
+          "example": "app.use(express.json())"
+        },
+        "interceptors": {
+          "description": "Перехватчики для логирования, кэширования, трансформации",
+          "levels": ["Глобальный", "Модуль", "Контроллер", "Метод"],
+          "example": "@UseInterceptors(LoggingInterceptor)"
+        },
+        "decorators": {
+          "description": "Метаданные и конфигурация",
+          "types": ["Встроенные", "Пользовательские"],
+          "example": "@Get(), @Post(), @UseGuards()"
+        },
+        "guards": {
+          "description": "Охранники для проверки авторизации и прав доступа",
+          "execution_order": "После middleware, перед interceptors",
+          "example": "@UseGuards(AuthGuard)"
+        },
+        "pipes": {
+          "description": "Трубопроводы для валидации и трансформации данных",
+          "built_in": ["ValidationPipe", "ParseIntPipe", "ParseBoolPipe"],
+          "example": "@UsePipes(ValidationPipe)"
+        },
+        "filters": {
+          "description": "Фильтры для обработки исключений",
+          "types": ["Глобальные", "Контроллер", "Метод"],
+          "example": "@UseFilters(HttpExceptionFilter)"
+        }
+      }
+    },
+
+    "execution_order": {
+      "title": "Порядок выполнения компонентов",
+      "order": [
+        "1. Middleware (глобальные)",
+        "2. Guards (охранники)",
+        "3. Interceptors (до обработки)",
+        "4. Pipes (валидация)",
+        "5. Controller (контроллер)",
+        "6. Interceptors (после обработки)",
+        "7. Exception Filters (если есть ошибки)"
+      ]
+    },
+
+    "ddos_protection": {
+      "title": "DDoS Защита с Прогрессивным Замедлением",
+      "description": "Система защиты от DDoS атак с гуманным подходом",
+      "strategy": "Прогрессивное замедление вместо блокировки",
+      "levels": [
+        {
+          "range": "0-50 запросов/мин",
+          "delay": "0ms",
+          "description": "Нормальная скорость - без задержек"
+        },
+        {
+          "range": "51-75 запросов/мин",
+          "delay": "1000ms",
+          "description": "Легкое замедление - 1 секунда задержки"
+        },
+        {
+          "range": "76-100 запросов/мин",
+          "delay": "3000ms",
+          "description": "Среднее замедление - 3 секунды задержки"
+        },
+        {
+          "range": "101-150 запросов/мин",
+          "delay": "5000ms",
+          "description": "Сильное замедление - 5 секунд задержки"
+        },
+        {
+          "range": "151+ запросов/мин",
+          "delay": "10000ms",
+          "description": "Критическое замедление - 10 секунд задержки"
+        }
+      ],
+      "features": [
+        "Автоматическое восстановление при снижении нагрузки",
+        "Детальная статистика по IP адресам",
+        "Настраиваемые уровни замедления",
+        "HTTP заголовки с информацией о лимитах",
+        "API для мониторинга и управления"
+      ],
+      "api_endpoints": {
+        "stats": "GET /api/ddos-monitor/stats",
+        "ip_info": "GET /api/ddos-monitor/ip/:ip",
+        "reset_ip": "DELETE /api/ddos-monitor/reset/:ip",
+        "clear_all": "DELETE /api/ddos-monitor/clear-all",
+        "throttle_levels": "GET /api/ddos-monitor/throttle-levels",
+        "update_levels": "POST /api/ddos-monitor/update-throttle-levels"
+      },
+      "http_headers": [
+        "X-RateLimit-Limit - общий лимит запросов",
+        "X-RateLimit-Remaining - оставшиеся запросы",
+        "X-RateLimit-Reset - время сброса счетчика",
+        "X-RateLimit-ThrottleLevel - текущий уровень замедления",
+        "X-RateLimit-Delay - задержка в миллисекундах"
+      ]
+    },
+
+    "advanced_patterns": {
+      "title": "Продвинутые паттерны",
+      "patterns": {
+        "custom_providers": {
+          "description": "Пользовательские провайдеры",
+          "example": "useValue, useClass, useFactory"
+        },
+        "dynamic_modules": {
+          "description": "Динамические модули",
+          "example": "ConfigModule.forRoot(options)"
+        },
+        "custom_decorators": {
+          "description": "Пользовательские декораторы",
+          "example": "createParamDecorator()"
+        },
+        "lifecycle_hooks": {
+          "description": "Хуки жизненного цикла",
+          "hooks": ["OnModuleInit", "OnModuleDestroy", "OnApplicationBootstrap"]
+        },
+        "custom_transports": {
+          "description": "Пользовательские транспорты",
+          "example": "WebSocket, TCP, Redis"
+        },
+        "custom_adapters": {
+          "description": "Пользовательские адаптеры",
+          "example": "IoAdapter для Socket.IO"
+        },
+        "custom_serializers": {
+          "description": "Пользовательские сериализаторы",
+          "example": "JSON, XML, Protocol Buffers"
+        },
+        "custom_validators": {
+          "description": "Пользовательские валидаторы",
+          "example": "class-validator decorators"
+        },
+        "custom_transformers": {
+          "description": "Пользовательские трансформеры",
+          "example": "TypeORM transformers"
+        },
+        "custom_repositories": {
+          "description": "Пользовательские репозитории",
+          "example": "TypeORM custom repositories"
+        },
+        "custom_subscribers": {
+          "description": "Пользовательские подписчики",
+          "example": "TypeORM event subscribers"
+        },
+        "custom_commands": {
+          "description": "Пользовательские команды",
+          "example": "CLI commands"
+        },
+        "custom_schedulers": {
+          "description": "Пользовательские планировщики",
+          "example": "@nestjs/schedule"
+        },
+        "custom_health_checks": {
+          "description": "Пользовательские проверки здоровья",
+          "example": "@nestjs/terminus"
+        },
+        "custom_loggers": {
+          "description": "Пользовательские логгеры",
+          "example": "LoggerService interface"
+        }
+      }
+    },
+
+    "websockets": {
+      "title": "WebSockets в NestJS",
+      "packages": {
+        "@nestjs/websockets": "Основной модуль для WebSockets",
+        "@nestjs/platform-socket.io": "Адаптер для Socket.IO",
+        "socket.io": "Библиотека Socket.IO"
+      },
+      "installation": "npm install @nestjs/websockets@^10.0.0 @nestjs/platform-socket.io@^10.0.0 socket.io",
+      "usage": {
+        "gateway": "@WebSocketGateway()",
+        "subscribe": "@SubscribeMessage('event')",
+        "emit": "this.server.emit('event', data)"
+      }
+    },
+
+    "sli_metrics": {
+      "title": "SLI (Service Level Indicators)",
+      "description": "Метрики производительности и надежности",
+      "metrics": {
+        "latency": "Время отклика API",
+        "throughput": "Количество запросов в секунду",
+        "error_rate": "Процент неуспешных запросов",
+        "availability": "Время работы сервиса"
+      },
+      "libraries": {
+        "@nestjs/terminus": "Health checks",
+        "prom-client": "Prometheus метрики",
+        "@nestjs/microservices": "Метрики для микросервисов",
+        "@nestjs/schedule": "Планировщик задач с метриками"
+      }
+    },
+
+    "best_practices": {
+      "title": "Лучшие практики",
+      "practices": [
+        "Используйте Dependency Injection",
+        "Разделяйте бизнес-логику и представление",
+        "Применяйте принципы SOLID",
+        "Используйте TypeScript для типизации",
+        "Пишите тесты для всех компонентов",
+        "Используйте валидацию данных",
+        "Логируйте важные события",
+        "Обрабатывайте исключения",
+        "Используйте конфигурацию через переменные окружения",
+        "Документируйте API",
+        "Применяйте прогрессивное замедление вместо блокировки",
+        "Мониторьте производительность и безопасность"
+      ]
+    },
+
+    "common_libraries": {
+      "title": "Популярные библиотеки",
+      "libraries": {
+        "@nestjs/typeorm": "Интеграция с TypeORM",
+        "@nestjs/mongoose": "Интеграция с Mongoose",
+        "@nestjs/passport": "Аутентификация",
+        "@nestjs/jwt": "JWT токены",
+        "@nestjs/config": "Конфигурация",
+        "@nestjs/swagger": "Документация API",
+        "@nestjs/throttler": "Ограничение запросов",
+        "@nestjs/bull": "Очереди задач",
+        "@nestjs/event-emitter": "События",
+        "@nestjs/cache-manager": "Кэширование"
+      }
+    }
+  }
+} 

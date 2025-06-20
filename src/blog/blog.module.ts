@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { SequelizeModule } from '@nestjs/sequelize';
 import { BlogService } from './blog.service';
 import { BlogController } from './blog.controller';
-import { Blog } from './entities/blog.entity';
-import { Comment } from './entities/comment.entity';
+import { Blog } from './entities/blog.model';
+import { Comment } from './entities/comment.model';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Blog, Comment])],
+  imports: [SequelizeModule.forFeature([Blog, Comment])],
   controllers: [BlogController],
   providers: [BlogService],
   exports: [BlogService],
