@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { NotFoundFilter } from './filters/not-found.filter';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { GlobalMiddleware } from './middleware/globalMiddleware';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
@@ -61,8 +62,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // Регистрация глобального фильтра для 404 ошибок
-  app.useGlobalFilters(new NotFoundFilter());
+  // Регистрация глобальных фильтров
+  app.useGlobalFilters(new HttpExceptionFilter(), new NotFoundFilter());
 
   await app.listen(process.env.PORT ?? 5000);
 }

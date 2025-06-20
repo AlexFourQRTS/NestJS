@@ -73,6 +73,11 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto, clientIp: string): Promise<{ user: Partial<User>; tokens: Tokens }> {
+    // Проверяем, что email не undefined
+    if (!loginDto.email) {
+      throw new BadRequestException('Email обязателен для входа');
+    }
+
     const user = await this.validateUser(loginDto.email, loginDto.password);
     
     if (!user) {
@@ -110,6 +115,11 @@ export class AuthService {
   }
 
   async validateUser(email: string, password: string): Promise<User | null> {
+    // Проверяем, что email не undefined
+    if (!email) {
+      return null;
+    }
+
     const user = await this.userModel.findOne({
       where: { email }
     });

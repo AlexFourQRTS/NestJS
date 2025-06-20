@@ -191,8 +191,6 @@ export class FilesService implements OnModuleDestroy {
           file_type: fileType,
         };
 
-        console.log('File data to save:', fileData);
-        
         const savedFile = await this.fileModel.create(fileData);
         savedFiles.push(savedFile);
       }
